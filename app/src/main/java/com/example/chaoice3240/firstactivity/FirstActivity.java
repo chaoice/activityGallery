@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
+import com.example.chaoice3240.firstactivity.trade.login.LoginActivity;
 
 public class FirstActivity extends AppCompatActivity implements BottomNavigationBar.OnTabSelectedListener {
     private static final String TAG = "FirstActivity";
@@ -103,7 +104,7 @@ public class FirstActivity extends AppCompatActivity implements BottomNavigation
     }
     public void sendMessage(View view)
     {
-        Intent intent=new Intent(this,DisplayMessageActivity.class);
+        Intent intent=new Intent(this,LoginActivity.class);
         EditText editText=(EditText) findViewById(R.id.editTextName);
         intent.putExtra(EXTRA_NAME,editText.getText().toString());
         startActivity(intent);

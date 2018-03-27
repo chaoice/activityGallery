@@ -1,4 +1,4 @@
-package com.example.chaoice3240.firstactivity;
+package com.example.chaoice3240.firstactivity.customView;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
@@ -7,7 +7,6 @@ import android.content.res.TypedArray;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.PathDashPathEffect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -17,6 +16,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Scroller;
 import android.widget.Toast;
+
+import com.example.chaoice3240.firstactivity.R;
+import com.example.chaoice3240.firstactivity.database.user.UserEntity;
+
+import javax.inject.Inject;
+
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 
 /**
  * Created by Admin on 2018/3/8.
@@ -35,10 +43,13 @@ public class CustomView extends View {
     private String viewText="";
     private float m_lastx;
     private float m_lasty;
+    @Inject
+    Product injectProduct;
+
 
     public CustomView(Context context,AttributeSet attrs) {
         super(context,attrs);
-        TypedArray array= context.getTheme().obtainStyledAttributes(attrs,R.styleable.CustomView,0,0);
+        TypedArray array= context.getTheme().obtainStyledAttributes(attrs, R.styleable.CustomView,0,0);
         mShowText= array.getBoolean(R.styleable.CustomView_showText,false);
         mTextPos=array.getInteger(R.styleable.CustomView_labelPosition,0);
         mName=array.getString(R.styleable.CustomView_Name);
@@ -138,6 +149,66 @@ public class CustomView extends View {
         });
         setBackgroundResource(R.drawable.my_rect);
         setElevation(100);
+//        DaggerCustomViewComponent.create().inject(this);
+//        Log.d(TAG, "init: "+injectProduct.getGetU());
+        DaggerCustomViewModelComponent.create().inject(this);
+        DaggerCustomViewModelComponent.create().inject(injectProduct);
+        Log.d(TAG, "init: "+injectProduct.getGetU());
+        injectProduct.insertUser().observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<Boolean>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError: "+e.getMessage());
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onNext(Boolean aBoolean) {
+                Toast.makeText(getContext(),"result="+aBoolean,Toast.LENGTH_SHORT);
+            }
+        });
+        injectProduct.getUser("zhang")
+                .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<UserEntity>() {
+            @Override
+            public void onCompleted() {
+                Log.d(TAG, "onCompleted: ");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError: ");
+            }
+
+            @Override
+            public void onNext(UserEntity userEntity) {
+                Log.d(TAG, "onNext: "+userEntity.firstName+userEntity.lastName);
+            }
+        });
+        injectProduct.getUsers()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<UserEntity>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "onCompleted: ");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError: ");
+                    }
+
+                    @Override
+                    public void onNext(UserEntity userEntity) {
+                        Log.d(TAG, "onNext: ");
+                    }
+                });
+//        injectProduct.getuserinfos();
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
